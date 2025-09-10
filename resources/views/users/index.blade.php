@@ -8,12 +8,14 @@
     <div class="py-10">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 shadow rounded-xl p-8">
-                <div class="flex justify-between items-center mb-8">
+                    <div class="flex justify-between items-center mb-8">
                     <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Users</h1>
-                    <a href="{{ route('users.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-sm hover:bg-blue-700 transition-all focus:outline-none focus:ring-2 focus:ring-blue-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                        New User
-                    </a>
+                    @if($loggedInUser->role === 'admin')
+                        <a href="{{ route('users.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-sm hover:bg-blue-700 transition-all focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                            New User
+                        </a>
+                    @endif
                 </div>
 
                 @if (session('success'))
@@ -47,17 +49,21 @@
                                     <td class="px-6 py-4">{{ $user->email }}</td>
                                     <td class="px-6 py-4 capitalize">{{ $user->role }}</td>
                                     <td class="px-6 py-4 flex gap-2 justify-center items-center actions">
-                                        <!-- View button removed; clicking the row will open a modal -->
-                                        <a href="{{ route('users.edit', $user->id) }}" class="inline-flex items-center justify-center p-2 text-sm font-medium text-green-600 bg-green-100 dark:bg-green-800 dark:text-green-200 rounded hover:bg-green-200 dark:hover:bg-green-700 transition" title="Edit">
-                                            <x-icon-edit />
-                                        </a>
-                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this user?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="inline-flex items-center justify-center p-2 text-sm font-medium text-red-600 bg-red-100 dark:bg-red-800 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-700 transition" title="Delete">
-                                                <x-icon-delete />
-                                            </button>
-                                        </form>
+                                        <!-- Only admins can edit/delete users -->
+                                        @if($loggedInUser->role === 'admin')
+                                            <a href="{{ route('users.edit', $user->id) }}" class="inline-flex items-center justify-center p-2 text-sm font-medium text-green-600 bg-green-100 dark:bg-green-800 dark:text-green-200 rounded hover:bg-green-200 dark:hover:bg-green-700 transition" title="Edit">
+                                                <x-icon-edit />
+                                            </a>
+                                            <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="inline-flex items-center justify-center p-2 text-sm font-medium text-red-600 bg-red-100 dark:bg-red-800 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-700 transition" title="Delete">
+                                                    <x-icon-delete />
+                                                </button>
+                                            </form>
+                                        @else
+                                            <span class="text-sm text-gray-500">-</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
@@ -78,7 +84,7 @@
     </div>
 
     <!-- User details modal -->
-    <div id="user-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+                <div id="user-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" data-close-modal></div>
         <div class="relative max-w-xl w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
             <div class="p-6">
@@ -95,7 +101,12 @@
                 </div>
 
                 <div class="mt-6 flex justify-end">
-                    <a id="modal-edit-link" href="#" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Edit</a>
+                    @if($loggedInUser->role === 'admin')
+                        <a id="modal-edit-link" href="#" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Edit</a>
+                    @else
+                        <!-- keep element absent for non-admins; JS will handle missing element -->
+                        <span id="modal-edit-link" style="display:none"></span>
+                    @endif
                     <button type="button" data-close-modal class="ml-2 inline-flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-300">Close</button>
                 </div>
             </div>

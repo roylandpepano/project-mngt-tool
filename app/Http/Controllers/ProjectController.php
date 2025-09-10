@@ -20,11 +20,16 @@ class ProjectController extends Controller
         // allow sorting by progress via ?sort=progress (desc) or ?sort=progress_asc
         $sort = request('sort');
 
+        // Admins should see all projects; normal users only their own
         $query = Project::query()
-            ->where('user_id', $user->id)
+            ->with('user')
             ->withCount(['tasks', 'tasks as done_tasks_count' => function ($q) {
                 $q->where('status', 'done');
             }]);
+
+        if ($user->role !== 'admin') {
+            $query->where('user_id', $user->id);
+        }
 
         if ($sort === 'progress') {
             // order by done_tasks_count/tasks_count desc (approx by done_tasks_count desc)
@@ -64,7 +69,7 @@ class ProjectController extends Controller
     public function show(Project $project)
     {
         $this->authorize('view', $project);
-        $project->load('tasks');
+        $project->load(['tasks', 'user']);
 
         $total = $project->tasks->count();
         $done = $project->tasks->where('status', 'done')->count();

@@ -12,6 +12,7 @@
                     <div>
                         <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ $project->title }}</h1>
                         <div class="text-sm text-gray-600 dark:text-gray-300">Deadline: {{ optional($project->deadline)->format('Y-m-d') }}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-300">Author: {{ $project->user ? $project->user->name : ('User ID: ' . $project->user_id) }}</div>
                         <p class="mt-4 text-gray-700 dark:text-gray-200">{{ $project->description }}</p>
                     </div>
                     <div class="w-48 text-right">

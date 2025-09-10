@@ -11,18 +11,28 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::orderBy('id')->paginate(10);
         $loggedInUser = Auth::user();
+
+        // Admins can see all users; regular users only see their own record
+        $query = User::orderBy('id');
+        if ($loggedInUser->role !== 'admin') {
+            $query->where('id', $loggedInUser->id);
+        }
+
+        $users = $query->paginate(10);
+
         return view('users.index', compact('users', 'loggedInUser'));
     }
 
     public function create()
     {
+        $this->authorize('create', User::class);
         return view('users.create');
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create', User::class);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -37,12 +47,14 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
+        $this->authorize('update', $user);
         return view('users.edit', compact('user'));
     }
 
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
+        $this->authorize('update', $user);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
@@ -61,6 +73,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+        $this->authorize('delete', $user);
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }

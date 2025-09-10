@@ -33,6 +33,7 @@
                                 <th class="px-6 py-4 font-semibold text-gray-600 dark:text-gray-300">ID</th>
                                 <th class="px-6 py-4 font-semibold text-gray-600 dark:text-gray-300">Title</th>
                                 <th class="px-6 py-4 font-semibold text-gray-600 dark:text-gray-300">Deadline</th>
+                                <th class="px-6 py-4 font-semibold text-gray-600 dark:text-gray-300">Author</th>
                                 <th class="px-6 py-4 font-semibold text-gray-600 dark:text-gray-300">Tasks</th>
                                 <th class="px-6 py-4 font-semibold text-gray-600 dark:text-gray-300">Progress</th>
                                 <th class="px-6 py-4 font-semibold text-gray-600 dark:text-gray-300 text-center">Actions</th>
@@ -46,6 +47,9 @@
                                         <div class="text-xs text-gray-500">{{ Str::limit($project->description, 100) }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ optional($project->deadline)->format('Y-m-d') }}</td>
+                                    <td class="px-6 py-4">
+                                        {{ $project->user ? $project->user->name : ('User ID: ' . $project->user_id) }}
+                                    </td>
                                     <td class="px-6 py-4">{{ $project->tasks->count() }}</td>
                                     <td class="px-6 py-4 w-48">
                                         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden" title="{{ $project->done_tasks_count ?? $project->tasks->where('status','done')->count() }} done / {{ $project->tasks_count ?? $project->tasks->count() }} total">
