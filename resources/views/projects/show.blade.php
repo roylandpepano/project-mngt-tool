@@ -39,7 +39,7 @@
                                 <th class="px-6 py-4 font-semibold text-gray-600 dark:text-gray-300 text-center">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800 text-gray-700 dark:text-gray-200">
                             @foreach($project->tasks as $task)
                                 <tr>
                                     <td class="px-6 py-4">{{ $task->title }}</td>
