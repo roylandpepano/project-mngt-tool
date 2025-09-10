@@ -51,6 +51,14 @@ class UserController extends Controller
         return view('users.edit', compact('user'));
     }
 
+    // public function show($id)
+    // {
+    //     $user = User::findOrFail($id);
+    //     $this->authorize('view', $user);
+    //     activity()->causedBy(Auth::user())->performedOn($user)->withProperties(['viewed_by' => Auth::id()])->log('user.viewed');
+    //     return view('users.show', compact('user'));
+    // }
+
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);

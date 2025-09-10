@@ -28,6 +28,7 @@ class TaskApiController extends Controller
     public function show(Task $task)
     {
         if (Auth::user()->role !== 'admin' && $task->project->user_id !== Auth::id()) abort(403);
+        activity()->causedBy(Auth::user())->performedOn($task)->withProperties(['viewed_by' => Auth::id()])->log('task.viewed');
         return new TaskResource($task);
     }
 

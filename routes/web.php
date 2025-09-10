@@ -23,6 +23,10 @@ Route::middleware('auth')->group(function () {
     // Projects and Tasks
     Route::resource('projects', ProjectController::class);
     Route::resource('tasks', TaskController::class)->only(['store','edit','update','destroy']);
+    // Activity logs (admin only)
+    Route::get('activity-logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])
+        ->name('activity_logs.index')
+        ->middleware('admin');
 });
 
 require __DIR__.'/auth.php';

@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 use App\Models\Task;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     protected $fillable = [
         'title',
@@ -60,5 +62,18 @@ class Project extends Model
         $total = $this->tasks()->count();
         $done = $this->tasks()->where('status', 'done')->count();
         return $total ? (int) round($done / $total * 100) : 0;
+    }
+
+    /**
+     * Configure activity log options for this model.
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(function (string $eventName) {
+                return "project.{$eventName}";
+            });
     }
 }

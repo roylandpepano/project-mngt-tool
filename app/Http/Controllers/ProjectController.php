@@ -71,6 +71,13 @@ class ProjectController extends Controller
         $this->authorize('view', $project);
         $project->load(['tasks', 'user']);
 
+        // Log that the project was viewed
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($project)
+            ->withProperties(['viewed_by' => Auth::id()])
+            ->log('project.viewed');
+
         $total = $project->tasks->count();
         $done = $project->tasks->where('status', 'done')->count();
         $progress = $total ? round($done / $total * 100) : 0;

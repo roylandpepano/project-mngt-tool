@@ -19,7 +19,7 @@ class TaskController extends Controller
             $projectQuery->where('user_id', Auth::id());
         }
         $project = $projectQuery->firstOrFail();
-        Task::create($data);
+    $task = Task::create($data);
         return redirect()->route('projects.show', $project->id)->with('success', 'Task created.');
     }
 
@@ -32,7 +32,7 @@ class TaskController extends Controller
     public function update(UpdateTaskRequest $request, Task $task)
     {
         if (Auth::user()->role !== 'admin' && $task->project->user_id !== Auth::id()) abort(403);
-        $task->update($request->validated());
+    $task->update($request->validated());
         return redirect()->route('projects.show', $task->project_id)->with('success', 'Task updated.');
     }
 
@@ -40,7 +40,7 @@ class TaskController extends Controller
     {
         if (Auth::user()->role !== 'admin' && $task->project->user_id !== Auth::id()) abort(403);
         $projectId = $task->project_id;
-        $task->delete();
+    $task->delete();
         return redirect()->route('projects.show', $projectId)->with('success', 'Task deleted.');
     }
 }

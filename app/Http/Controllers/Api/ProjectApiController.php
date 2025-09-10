@@ -28,6 +28,7 @@ class ProjectApiController extends Controller
     {
         $this->authorize('view', $project);
         $project->load('tasks');
+        activity()->causedBy(Auth::user())->performedOn($project)->withProperties(['viewed_by' => Auth::id()])->log('project.viewed');
         return new ProjectResource($project);
     }
 
