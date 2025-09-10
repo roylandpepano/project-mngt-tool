@@ -35,7 +35,13 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                             @foreach ($users as $user)
-                                <tr data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" data-user-email="{{ $user->email }}" data-user-role="{{ $user->role }}" class="transition text-gray-600 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer focus:outline-none {{ $loggedInUser->id === $user->id ? 'bg-blue-50 dark:bg-gray-800' : '' }}" tabindex="0" role="button">
+                                <tr data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" data-user-email="{{ $user->email }}" data-user-role="{{ $user->role }}"
+                                    class="transition text-gray-600 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer focus:outline-none
+                                    {{ $loggedInUser->id === $user->id ? 'bg-blue-200 dark:bg-blue-800' : '' }}
+                                    @if($loggedInUser->id !== $user->id)
+                                        {{ $loop->odd ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800' }}
+                                    @endif
+                                    " tabindex="0" role="button">
                                     <td class="px-6 py-4">{{ $user->id }}</td>
                                     <td class="px-6 py-4">{{ $user->name }}</td>
                                     <td class="px-6 py-4">{{ $user->email }}</td>
@@ -62,6 +68,15 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+                <div class="mt-4">
+                    <div class="text-sm text-gray-600 dark:text-gray-300">
+                        @if ($users->total())
+                           {{ $users->links() }}
+                        @else
+                            No users found.
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

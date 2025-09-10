@@ -11,7 +11,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::all();
+        $users = User::orderBy('id')->paginate(10);
         $loggedInUser = Auth::user();
         return view('users.index', compact('users', 'loggedInUser'));
     }
@@ -32,12 +32,6 @@ class UserController extends Controller
         $validated['password'] = bcrypt($validated['password']);
         $user = User::create($validated);
         return redirect()->route('users.index')->with('success', 'User created successfully.');
-    }
-
-    public function show($id)
-    {
-        $user = User::findOrFail($id);
-        return view('users.show', compact('user'));
     }
 
     public function edit($id)
