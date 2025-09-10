@@ -48,19 +48,14 @@
                                     <td class="px-6 py-4 capitalize">{{ $user->role }}</td>
                                     <td class="px-6 py-4 flex gap-2 justify-center items-center actions">
                                         <!-- View button removed; clicking the row will open a modal -->
-                                        <a href="{{ route('users.edit', $user->id) }}" class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium text-green-600 bg-green-100 dark:bg-green-800 dark:text-green-200 rounded hover:bg-green-200 dark:hover:bg-green-700 transition" title="Edit">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5h2m2 0h.01M12 7v10m0 0h-2m2 0h2m-2 0V7m0 0h2m-2 0h-2" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.862 3.487a2.25 2.25 0 013.182 3.182l-9.193 9.193a2.25 2.25 0 01-1.06.594l-3.25.813a.75.75 0 01-.91-.91l.813-3.25a2.25 2.25 0 01.594-1.06l9.193-9.193z" />
-                                            </svg>
+                                        <a href="{{ route('users.edit', $user->id) }}" class="inline-flex items-center justify-center p-2 text-sm font-medium text-green-600 bg-green-100 dark:bg-green-800 dark:text-green-200 rounded hover:bg-green-200 dark:hover:bg-green-700 transition" title="Edit">
+                                            <x-icon-edit />
                                         </a>
                                         <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this user?');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium text-red-600 bg-red-100 dark:bg-red-800 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-700 transition" title="Delete">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
+                                            <button type="submit" class="inline-flex items-center justify-center p-2 text-sm font-medium text-red-600 bg-red-100 dark:bg-red-800 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-700 transition" title="Delete">
+                                                <x-icon-delete />
                                             </button>
                                         </form>
                                     </td>
