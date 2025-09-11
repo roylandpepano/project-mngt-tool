@@ -9,6 +9,7 @@ use App\Http\Resources\TaskResource;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Models\User;
 
 class TaskApiController extends Controller
 {
@@ -21,6 +22,10 @@ class TaskApiController extends Controller
             $projectQuery->where('user_id', Auth::id());
         }
         $project = $projectQuery->firstOrFail();
+        if (isset($data['assigned_to']) && Auth::user()->role !== 'admin') {
+            if ($data['assigned_to'] != Auth::id()) abort(403);
+        }
+
         $task = Task::create($data);
         return new TaskResource($task);
     }

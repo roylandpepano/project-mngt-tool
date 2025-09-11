@@ -35,6 +35,7 @@
                             <tr>
                                 <th class="px-6 py-4 font-semibold text-gray-600 dark:text-gray-300">Title</th>
                                 <th class="px-6 py-4 font-semibold text-gray-600 dark:text-gray-300">Due</th>
+                                <th class="px-6 py-4 font-semibold text-gray-600 dark:text-gray-300">Assignee</th>
                                 <th class="px-6 py-4 font-semibold text-gray-600 dark:text-gray-300">Status</th>
                                 <th class="px-6 py-4 font-semibold text-gray-600 dark:text-gray-300 text-center">Actions</th>
                             </tr>
@@ -44,6 +45,7 @@
                                 <tr>
                                     <td class="px-6 py-4">{{ $task->title }}</td>
                                     <td class="px-6 py-4">{{ $task->due_date ? $task->due_date->format('Y-m-d') : 'n/a' }}</td>
+                                    <td class="px-6 py-4">{{ $task->assignee ? $task->assignee->name : '-' }}</td>
                                     <td class="px-6 py-4 capitalize">{{ $task->status }}</td>
                                     <td class="px-6 py-4 flex gap-2 justify-center items-center">
                                         <a href="{{ route('tasks.edit', $task->id) }}" class="inline-flex items-center justify-center p-2 text-sm font-medium text-blue-600 bg-blue-100 dark:bg-blue-800 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-700 transition" title="Edit task">
@@ -85,6 +87,17 @@
                                 <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Due date</label>
                                 <input type="date" name="due_date" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200">
                             </div>
+                            @if(auth()->user()->role === 'admin')
+                            <div>
+                                <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Assign to</label>
+                                <select name="assigned_to" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200">
+                                    <option value="">Unassigned</option>
+                                    @foreach(\App\Models\User::orderBy('name')->get() as $u)
+                                        <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->email }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @endif
                         </div>
 
                         <div class="flex justify-end">

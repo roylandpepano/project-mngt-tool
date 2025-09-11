@@ -18,6 +18,7 @@ class StoreTaskRequest extends FormRequest
             'status' => 'required|in:todo,in progress,done',
             'due_date' => 'nullable|date',
             'project_id' => 'required|exists:projects,id',
+            'assigned_to' => 'nullable|exists:users,id',
         ];
     }
 }

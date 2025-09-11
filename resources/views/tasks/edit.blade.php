@@ -32,6 +32,18 @@
                             <label for="due_date" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Due date</label>
                             <input type="date" name="due_date" id="due_date" value="{{ old('due_date', $task->due_date ? $task->due_date->format('Y-m-d') : '') }}" class="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 w-full">
                         </div>
+
+                        @if(auth()->user()->role === 'admin')
+                        <div>
+                            <label for="assigned_to" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Assignee</label>
+                            <select name="assigned_to" id="assigned_to" class="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 w-full">
+                                <option value="">Unassigned</option>
+                                @foreach(\App\Models\User::orderBy('name')->get() as $u)
+                                    <option value="{{ $u->id }}" {{ $task->assigned_to == $u->id ? 'selected' : '' }}>{{ $u->name }} ({{ $u->email }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @endif
                     </div>
 
                     <div class="flex justify-end gap-2">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Models\Project;
+use App\Models\User;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use Illuminate\Support\Facades\Auth;
@@ -19,20 +20,39 @@ class TaskController extends Controller
             $projectQuery->where('user_id', Auth::id());
         }
         $project = $projectQuery->firstOrFail();
-    $task = Task::create($data);
+        // enforce assignment rules: non-admins can only assign to themselves or leave unassigned
+        if (isset($data['assigned_to']) && Auth::user()->role !== 'admin') {
+            if ($data['assigned_to'] != Auth::id()) {
+                abort(403);
+            }
+        }
+
+        $task = Task::create($data);
         return redirect()->route('projects.show', $project->id)->with('success', 'Task created.');
     }
 
     public function edit(Task $task)
     {
         if (Auth::user()->role !== 'admin' && $task->project->user_id !== Auth::id()) abort(403);
-        return view('tasks.edit', compact('task'));
+        $users = [];
+        // Admins get full user list to assign; non-admins only themselves
+        if (Auth::user()->role === 'admin') {
+            $users = User::orderBy('name')->get();
+        }
+        return view('tasks.edit', compact('task', 'users'));
     }
 
     public function update(UpdateTaskRequest $request, Task $task)
     {
         if (Auth::user()->role !== 'admin' && $task->project->user_id !== Auth::id()) abort(403);
-    $task->update($request->validated());
+        $data = $request->validated();
+        if (isset($data['assigned_to']) && Auth::user()->role !== 'admin') {
+            if ($data['assigned_to'] != Auth::id()) {
+                abort(403);
+            }
+        }
+
+        $task->update($data);
         return redirect()->route('projects.show', $task->project_id)->with('success', 'Task updated.');
     }
 
