@@ -29,7 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('users', UserController::class);
     // Projects and Tasks
     Route::resource('projects', ProjectController::class);
-    Route::resource('tasks', TaskController::class)->only(['store','edit','update','destroy']);
+    Route::resource('tasks', TaskController::class)->only(['store','show','edit','update','destroy']);
     // Activity logs (admin only)
     Route::get('activity-logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])
         ->name('activity_logs.index')

@@ -14,18 +14,10 @@
                     @csrf
                     @method('PUT')
                     <div class="grid grid-cols-1 gap-6">
+                        @unless(isset($canEditStatusOnly) && $canEditStatusOnly)
                         <div>
                             <label for="title" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
                             <input type="text" name="title" id="title" value="{{ old('title', $task->title) }}" required class="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full">
-                        </div>
-
-                        <div>
-                            <label for="status" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-                            <select name="status" id="status" class="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 w-full">
-                                <option value="todo" {{ $task->status=='todo' ? 'selected' : '' }}>todo</option>
-                                <option value="in progress" {{ $task->status=='in progress' ? 'selected' : '' }}>in progress</option>
-                                <option value="done" {{ $task->status=='done' ? 'selected' : '' }}>done</option>
-                            </select>
                         </div>
 
                         <div>
@@ -44,6 +36,17 @@
                             </select>
                         </div>
                         @endif
+                        @endunless
+
+                        {{-- status is always editable for assignees and owners/admins --}}
+                        <div>
+                            <label for="status" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                            <select name="status" id="status" class="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 w-full">
+                                <option value="todo" {{ $task->status=='todo' ? 'selected' : '' }}>todo</option>
+                                <option value="in progress" {{ $task->status=='in progress' ? 'selected' : '' }}>in progress</option>
+                                <option value="done" {{ $task->status=='done' ? 'selected' : '' }}>done</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="flex justify-end gap-2">

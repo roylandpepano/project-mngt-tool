@@ -29,15 +29,40 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-800 text-gray-700 dark:text-gray-200">
                             @foreach($tasks as $task)
+                                @php
+                                    $status = $task->status;
+                                    if ($status == 'done') {
+                                        $badge = 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100';
+                                    } elseif ($status == 'in progress') {
+                                        $badge = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100';
+                                    } else {
+                                        $badge = 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+                                    }
+                                    $selectBase = 'px-2 py-1 rounded border focus:outline-none';
+                                    $selectColors = 'bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-700 ' . ($status == 'done' ? 'dark:bg-green-800 dark:text-green-100' : ($status == 'in progress' ? 'dark:bg-yellow-800 dark:text-yellow-100' : ''));
+                                @endphp
                                 <tr>
                                     <td class="px-6 py-3">{{ $task->title }}</td>
                                     <td class="px-6 py-3">{{ $task->project ? $task->project->title : '-' }}</td>
                                     <td class="px-6 py-3">{{ $task->due_date ? $task->due_date->format('Y-m-d') : 'n/a' }}</td>
-                                    <td class="px-6 py-3 capitalize">{{ $task->status }}</td>
                                     <td class="px-6 py-3">
-                                        <a href="{{ route('projects.show', $task->project_id) }}" class="text-blue-600 hover:underline">View project</a>
+                                        @if(auth()->user()->role === 'user' && $task->assigned_to === auth()->id())
+                                            <form action="{{ route('tasks.update', $task->id) }}" method="POST" class="inline-flex items-center">
+                                                @csrf
+                                                @method('PUT')
+                                                <select name="status" onchange="this.form.submit()" class="{{ $selectBase }} {{ $selectColors }}">
+                                                    <option value="todo" {{ $task->status=='todo' ? 'selected' : '' }}>todo</option>
+                                                    <option value="in progress" {{ $task->status=='in progress' ? 'selected' : '' }}>in progress</option>
+                                                    <option value="done" {{ $task->status=='done' ? 'selected' : '' }}>done</option>
+                                                </select>
+                                            </form>
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-1 rounded text-sm font-medium {{ $badge }}">{{ ucfirst($task->status) }}</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-3">
+                                        <a href="{{ route('tasks.show', $task->id) }}" class="text-blue-600 hover:underline mr-3">View task</a>
                                         @if(auth()->user()->role === 'admin' || $task->project && $task->project->user_id === auth()->id())
-                                            <span class="mx-2">|</span>
                                             <a href="{{ route('tasks.edit', $task->id) }}" class="text-blue-600 hover:underline">Edit</a>
                                         @endif
                                     </td>

@@ -6,8 +6,9 @@ use App\Models\Task;
 use App\Models\Project;
 use App\Models\User;
 use App\Http\Requests\StoreTaskRequest;
-use App\Http\Requests\UpdateTaskRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class TaskController extends Controller
 {
@@ -33,20 +34,65 @@ class TaskController extends Controller
 
     public function edit(Task $task)
     {
-        if (Auth::user()->role !== 'admin' && $task->project->user_id !== Auth::id()) abort(403);
+    $isAdmin = Auth::user()->role === 'admin';
+    $isProjectOwner = $task->project->user_id == Auth::id();
+    $isAssignee = $task->assigned_to == Auth::id();
+
+        if (! $isAdmin && ! $isProjectOwner && ! $isAssignee) {
+            abort(403);
+        }
+
         $users = [];
-        // Admins get full user list to assign; non-admins only themselves
-        if (Auth::user()->role === 'admin') {
+        if ($isAdmin) {
             $users = User::orderBy('name')->get();
         }
-        return view('tasks.edit', compact('task', 'users'));
+
+        // If the current user is only the assignee (not admin or project owner), allow status-only editing
+        $canEditStatusOnly = (! $isAdmin && ! $isProjectOwner && $isAssignee);
+
+        return view('tasks.edit', compact('task', 'users', 'canEditStatusOnly'));
     }
 
-    public function update(UpdateTaskRequest $request, Task $task)
+    public function show(Task $task)
     {
-        if (Auth::user()->role !== 'admin' && $task->project->user_id !== Auth::id()) abort(403);
-        $data = $request->validated();
-        if (isset($data['assigned_to']) && Auth::user()->role !== 'admin') {
+        // allow admins, project owners, or the assignee to view
+    if (Auth::user()->role !== 'admin' && $task->project->user_id != Auth::id() && $task->assigned_to != Auth::id()) {
+            abort(403);
+        }
+
+        $task->load('project', 'assignee');
+        return view('tasks.show', compact('task'));
+    }
+
+    public function update(Request $request, Task $task)
+    {
+    $isAdmin = Auth::user()->role === 'admin';
+    $isProjectOwner = $task->project->user_id == Auth::id();
+    $isAssignee = $task->assigned_to == Auth::id();
+
+        // If user is only the assignee, allow updating status only
+        if (! $isAdmin && ! $isProjectOwner && $isAssignee) {
+            $validated = Validator::make($request->only('status'), [
+                'status' => 'required|in:todo,in progress,done',
+            ])->validate();
+            $task->update(['status' => $validated['status']]);
+            return redirect()->back()->with('success', 'Task status updated.');
+        }
+
+        // otherwise require admin or project owner
+        if (! $isAdmin && ! $isProjectOwner) {
+            abort(403);
+        }
+
+        // Validate using the same rules as UpdateTaskRequest
+        $data = Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'status' => 'required|in:todo,in progress,done',
+            'due_date' => 'nullable|date',
+            'assigned_to' => 'nullable|exists:users,id',
+        ])->validate();
+
+        if (isset($data['assigned_to']) && ! $isAdmin) {
             if ($data['assigned_to'] != Auth::id()) {
                 abort(403);
             }
@@ -58,7 +104,7 @@ class TaskController extends Controller
 
     public function destroy(Task $task)
     {
-        if (Auth::user()->role !== 'admin' && $task->project->user_id !== Auth::id()) abort(403);
+    if (Auth::user()->role !== 'admin' && $task->project->user_id != Auth::id()) abort(403);
         $projectId = $task->project_id;
     $task->delete();
         return redirect()->route('projects.show', $projectId)->with('success', 'Task deleted.');
