@@ -16,8 +16,13 @@ class ProjectFactory extends Factory
      */
     public function definition(): array
     {
+        $dt = $this->faker->optional()->dateTimeBetween('now', '+2 years');
+        $deadline = $dt ? $dt->format('Y-m-d') : date('Y-m-d');
+
         return [
-            //
+            'title' => $this->faker->sentence(3),
+            'description' => $this->faker->paragraph(),
+            'deadline' => $deadline,
         ];
     }
 }

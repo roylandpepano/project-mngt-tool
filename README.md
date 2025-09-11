@@ -1,61 +1,109 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Project Management Tool (Mini Laravel System)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This repository contains a small project management application built on Laravel. The app supports user authentication, roles (admin/user), projects and tasks, an API protected with Sanctum, activity logging, task assignment, and deadline reminders.
 
-## About Laravel
+## Quick facts
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+-   Laravel: 12.x
+-   PHP: 8.2+
+-   Database: MySQL
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Getting started (local)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Follow these steps to get the project running locally (Windows / bash):
 
-## Learning Laravel
+1. Install PHP, Composer, Node.js and a database (MySQL).
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+2. From the project root run:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```bash
+composer install
+cp .env.example .env
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+3. Edit `.env` and set your database credentials (DB_CONNECTION=mysql, DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD)`.
 
-## Laravel Sponsors
+4. Generate app key, run migrations and seed:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+php artisan key:generate
+php artisan migrate
+php artisan db:seed --class=DatabaseSeeder
+```
 
-### Premium Partners
+5. Install frontend deps and build assets:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+npm install
+```
 
-## Contributing
+6. Serve the app:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+composer run dev
+```
 
-## Code of Conduct
+## Test accounts / credentials
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+There are no pre-seeded users by default. Create test accounts using tinker or a seeder. Example commands to create an admin and a user:
 
-## Security Vulnerabilities
+```bash
+php artisan tinker
+>>> \App\Models\User::create(['name' => 'Admin User', 'email' => 'admin@example.com', 'password' => bcrypt('password'), 'role' => 'admin']);
+>>> \App\Models\User::create(['name' => 'Normal User', 'email' => 'user@example.com', 'password' => bcrypt('password'), 'role' => 'user']);
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Credentials to test with (after creation above):
 
-## License
+-   Admin: admin@example.com / password
+-   User: user@example.com / password
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Running tests
+
+Run:
+
+```bash
+php artisan test
+```
+
+## API
+
+-   API routes are under `routes/api.php` and are protected with Laravel Sanctum (`auth:sanctum`).
+-   Resources: `App\\Http\\Resources\\ProjectResource`, `App\\Http\\Resources\\TaskResource`.
+
+How to get a token (example using personal access tokens):
+
+1. Ensure `laravel/sanctum` is installed and migrations published:
+
+```bash
+php artisan vendor:publish --tag=sanctum-migrations
+php artisan migrate
+```
+
+2. Create token via tinker (example):
+
+```bash
+php artisan tinker
+>>> $u = \\App\\Models\\User::where('email','admin@example.com')->first();
+>>> $u->createToken('api-token')->plainTextToken;
+```
+
+Then include the token in `Authorization: Bearer <token>` for API requests.
+
+## Notable features / architecture
+
+-   Authentication: views and controllers located under `app/Http/Controllers/Auth/*` and routes in `routes/auth.php`.
+-   Roles: `role` column on `users` table; enforced via `AdminMiddleware` (`app/Http/Middleware/AdminMiddleware.php`) and policy checks (`app/Policies/*`).
+-   Projects: `app/Models/Project.php` (soft deletes, `tasks()` relationship, `progress` accessor). CRUD in `app/Http/Controllers/ProjectController.php` with form requests `StoreProjectRequest`/`UpdateProjectRequest`.
+-   Tasks: `app/Models/Task.php` with `assigned_to`, `app/Http/Controllers/TaskController.php`, and API controllers under `app/Http/Controllers/Api`.
+-   Activity logs: Spatie activitylog traits used on models; controllers call `activity()` for view events.
+-   Deadline reminders: console command `php artisan projects:send-deadline-reminders` uses `App\\Mail\\ProjectDeadlineReminder`.
+
+## Troubleshooting
+
+-   If you see errors about `Laravel\\Sanctum\\HasApiTokens` or similar, run `composer install` and confirm `vendor/laravel/sanctum` exists.
+-   Ensure `AdminMiddleware` is registered in `app/Http/Kernel.php` under `$routeMiddleware` as `'admin' => \\App\\Http\\Middleware\\AdminMiddleware::class`.
+
+## Author
+
+-   [Royland](https://github.com/roylandvp)

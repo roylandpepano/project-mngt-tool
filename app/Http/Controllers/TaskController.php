@@ -34,9 +34,9 @@ class TaskController extends Controller
 
     public function edit(Task $task)
     {
-    $isAdmin = Auth::user()->role === 'admin';
-    $isProjectOwner = $task->project->user_id == Auth::id();
-    $isAssignee = $task->assigned_to == Auth::id();
+        $isAdmin = Auth::user()->role === 'admin';
+        $isProjectOwner = $task->project->user_id == Auth::id();
+        $isAssignee = $task->assigned_to == Auth::id();
 
         if (! $isAdmin && ! $isProjectOwner && ! $isAssignee) {
             abort(403);
@@ -66,9 +66,9 @@ class TaskController extends Controller
 
     public function update(Request $request, Task $task)
     {
-    $isAdmin = Auth::user()->role === 'admin';
-    $isProjectOwner = $task->project->user_id == Auth::id();
-    $isAssignee = $task->assigned_to == Auth::id();
+        $isAdmin = Auth::user()->role === 'admin';
+        $isProjectOwner = $task->project->user_id == Auth::id();
+        $isAssignee = $task->assigned_to == Auth::id();
 
         // If user is only the assignee, allow updating status only
         if (! $isAdmin && ! $isProjectOwner && $isAssignee) {
@@ -104,9 +104,9 @@ class TaskController extends Controller
 
     public function destroy(Task $task)
     {
-    if (Auth::user()->role !== 'admin' && $task->project->user_id != Auth::id()) abort(403);
+        if (Auth::user()->role !== 'admin' && $task->project->user_id != Auth::id()) abort(403);
         $projectId = $task->project_id;
-    $task->delete();
+        $task->delete();
         return redirect()->route('projects.show', $projectId)->with('success', 'Task deleted.');
     }
 }

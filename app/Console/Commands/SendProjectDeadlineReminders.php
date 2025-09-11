@@ -46,7 +46,7 @@ class SendProjectDeadlineReminders extends Command
                 continue;
             }
 
-            // Send the mailable — the configured mailer
+            // Send the mailable
             Mail::to($project->user->email)->send(new ProjectDeadlineReminder($project));
             $sent++;
         }
