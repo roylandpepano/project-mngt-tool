@@ -99,6 +99,29 @@ Then include the token in `Authorization: Bearer <token>` for API requests.
 -   Activity logs: Spatie activitylog traits used on models; controllers call `activity()` for view events.
 -   Deadline reminders: console command `php artisan projects:send-deadline-reminders` uses `App\\Mail\\ProjectDeadlineReminder`.
 
+## Email / Mail feature
+
+![Mailtrap screenshot](public/images/mailtrap.png)
+
+The project includes an email feature used to send deadline reminders and other notifications. It uses the `App\\Mail\\ProjectDeadlineReminder` Mailable and the artisan command `php artisan projects:send-deadline-reminders` to deliver messages to project owners and assignees.
+
+For testing, configure SMTP in your `.env`. A Mailtrap example:
+
+```
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=<your_mailtrap_username>
+MAIL_PASSWORD=<your_mailtrap_password>
+MAIL_ENCRYPTION=null
+```
+
+Trigger mail sending manually:
+
+```
+php artisan projects:send-deadline-reminders
+```
+
 ## Troubleshooting
 
 -   If you see errors about `Laravel\\Sanctum\\HasApiTokens` or similar, run `composer install` and confirm `vendor/laravel/sanctum` exists.
