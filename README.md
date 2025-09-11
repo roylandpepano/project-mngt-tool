@@ -1,5 +1,7 @@
 # Project Management Tool (Mini Laravel System)
 
+![Welcome page screenshot](public/images/welcome.png)
+
 This repository contains a small project management application built on Laravel. The app supports user authentication, roles (admin/user), projects and tasks, an API protected with Sanctum, activity logging, task assignment, and deadline reminders.
 
 ## Quick facts
