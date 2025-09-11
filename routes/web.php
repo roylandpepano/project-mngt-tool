@@ -3,16 +3,23 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
+use App\Models\Task;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\RedirectIfAuthenticated;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     return view('welcome');
 })->middleware(RedirectIfAuthenticated::class)->name('home');
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $tasks = Task::with('project')
+        ->where('assigned_to', Auth::id())
+        ->latest()
+        ->paginate(10);
+
+    return view('dashboard', compact('tasks'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
